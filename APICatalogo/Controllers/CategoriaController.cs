@@ -40,19 +40,12 @@ namespace APICatalogo.Controllers
 
             _logger.LogInformation("### Executando -> Get Categorias ###");
 
-            try
-            {
-                var categorias = _context.Categorias.AsNoTracking().ToList();
+            var categorias = _context.Categorias.AsNoTracking().ToList();
 
-                if (categorias is null)
-                    return NotFound();
+            if (categorias is null)
+                return NotFound();
 
-                return categorias;
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao tratar a sua solicitação.");
-            }
+            return categorias;
             
         }
 
