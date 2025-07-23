@@ -13,11 +13,15 @@ namespace APICatalogo.Controllers
 
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
 
-        public CategoriaController(AppDbContext context, IConfiguration configuration)
+        public CategoriaController(AppDbContext context, 
+                                   IConfiguration configuration, 
+                                   ILogger<CategoriaController> logger)
         {
             _context = context;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet("LerArquivoConfiguracao")]
@@ -33,6 +37,8 @@ namespace APICatalogo.Controllers
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
+
+            _logger.LogInformation("### Executando -> Get Categorias ###");
 
             try
             {
