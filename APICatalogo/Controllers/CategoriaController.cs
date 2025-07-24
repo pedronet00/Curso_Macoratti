@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Filters;
 using APICatalogo.Models;
+using APICatalogo.Repositories.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,15 +12,15 @@ namespace APICatalogo.Controllers
     public class CategoriaController : Controller
     {
 
-        private readonly AppDbContext _context;
+        private readonly ICategoriaRepository _repo;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
 
-        public CategoriaController(AppDbContext context, 
+        public CategoriaController(ICategoriaRepository repo, 
                                    IConfiguration configuration, 
                                    ILogger<CategoriaController> logger)
         {
-            _context = context;
+            _repo = repo;
             _configuration = configuration;
             _logger = logger;
         }
@@ -40,22 +41,16 @@ namespace APICatalogo.Controllers
 
             _logger.LogInformation("### Executando -> Get Categorias ###");
 
-            var categorias = _context.Categorias.AsNoTracking().ToList();
+            var categorias = _repo.GetCategorias();
 
-            if (categorias is null)
-                return NotFound();
-
-            return categorias;
+            return Ok(categorias);
             
         }
 
         [HttpGet("{id:int:min(1)}")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categorias = (from c in _context.Categorias
-                              where c.Id == id
-                              select c)
-                              .FirstOrDefault();
+            var categorias = _repo.GetById(id);
 
             if (categorias is null)
                 return NotFound($"Categoria com o id {id} não encontrada.");
@@ -69,8 +64,7 @@ namespace APICatalogo.Controllers
             if (categoria is null)
                 return BadRequest();
 
-            _context.Categorias.Add(categoria);
-            _context.SaveChanges();
+            _repo.InsertCategoria(categoria);
 
             return Ok();
         }
@@ -78,13 +72,12 @@ namespace APICatalogo.Controllers
         [HttpPut("{id}")]
         public ActionResult Put(int id, Categoria categoria)
         {
-            var categoriaExistente = _context.Categorias.FirstOrDefault(c => c.Id == id);
+            var categoriaExistente = _repo.GetById(id);
 
             if (categoria is null)
                 return NotFound();
 
-            _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
+            _repo.UpdateCategoria(categoria);
 
             return Ok();
         }
@@ -92,14 +85,12 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(c => c.Id == id);
+            var categoria = _repo.GetById(id);
 
             if (categoria is null)
-                return NotFound();  
+                return NotFound();
 
-            _context.Categorias.Remove(categoria);
-
-            _context.SaveChanges();
+            _repo.DeleteCategoria(id);
 
             return Ok();
         }
