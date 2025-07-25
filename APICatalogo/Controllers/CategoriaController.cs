@@ -1,4 +1,5 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.DTOs;
 using APICatalogo.Filters;
 using APICatalogo.Models;
 using APICatalogo.Repositories.Contracts;
@@ -36,54 +37,100 @@ namespace APICatalogo.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
-        public ActionResult<IEnumerable<Categoria>> Get()
+        public ActionResult<IEnumerable<CategoriaDTO>> Get()
         {
 
             _logger.LogInformation("### Executando -> Get Categorias ###");
 
             var categorias = _repo.GetCategorias();
 
-            return Ok(categorias);
+            var categoriasDTO = new List<CategoriaDTO>();
+            foreach (var categoria in categorias)
+            {
+                var categoriaDTO = new CategoriaDTO()
+                {
+                    Id = categoria.Id,
+                    Nome = categoria.Nome,
+                    ImagemUrl = categoria.ImagemUrl
+                };
+                categoriasDTO.Add(categoriaDTO);
+            }
+
+            return Ok(categoriasDTO);
             
         }
 
         [HttpGet("{id:int:min(1)}")]
-        public ActionResult<Categoria> Get(int id)
+        public ActionResult<CategoriaDTO> Get(int id)
         {
-            var categorias = _repo.GetById(id);
+            var categoria = _repo.GetById(id);
 
-            if (categorias is null)
+            if (categoria is null)
                 return NotFound($"Categoria com o id {id} não encontrada.");
 
-            return categorias;
+            var categoriaDTO = new CategoriaDTO();
+
+            categoriaDTO.Id = categoria.Id;
+            categoriaDTO.Nome = categoria.Nome;
+            categoriaDTO.ImagemUrl = categoria.ImagemUrl;
+
+            return categoriaDTO;
         }
 
         [HttpPost]
-        public ActionResult Post(Categoria categoria)
+        public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDTO)
         {
-            if (categoria is null)
+            if (categoriaDTO is null)
                 return BadRequest();
+
+            var categoria = new Categoria()
+            {
+                Id = categoriaDTO.Id,
+                Nome = categoriaDTO.Nome,
+                ImagemUrl = categoriaDTO.ImagemUrl
+            };
 
             _repo.InsertCategoria(categoria);
 
-            return Ok();
+            var novaCategoriaDTO = new CategoriaDTO()
+            {
+                Id = categoria.Id,
+                Nome = categoria.Nome,
+                ImagemUrl = categoria.ImagemUrl
+            };
+
+            return Ok(novaCategoriaDTO);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, Categoria categoria)
+        public ActionResult<CategoriaDTO> Put(int id, CategoriaDTO categoriaDTO)
         {
             var categoriaExistente = _repo.GetById(id);
 
-            if (categoria is null)
+            if (categoriaDTO is null)
                 return NotFound();
+
+            var categoria = new Categoria()
+            {
+                Id = categoriaDTO.Id,
+                Nome = categoriaDTO.Nome,
+                ImagemUrl = categoriaDTO.ImagemUrl
+            };
 
             _repo.UpdateCategoria(categoria);
 
-            return Ok();
+            var categoriaDTOAtualizada = new CategoriaDTO()
+            {
+                Id = categoria.Id,
+                Nome = categoria.Nome,
+                ImagemUrl = categoria.ImagemUrl
+            };
+
+            return Ok(categoriaDTOAtualizada);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<CategoriaDTO> Delete(int id)
         {
             var categoria = _repo.GetById(id);
 
