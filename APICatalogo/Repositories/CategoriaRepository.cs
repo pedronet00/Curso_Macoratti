@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
 using APICatalogo.Repositories.Contracts;
+using APICatalogo.UnitOfWork.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +11,21 @@ public class CategoriaRepository : ICategoriaRepository
 {
 
     private readonly AppDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CategoriaRepository(AppDbContext context, IUnitOfWork unitOfWork)
+    {
+        _context = context;
+        _unitOfWork = unitOfWork;
+    }
 
     public bool DeleteCategoria(int id)
     {
         var categoria = this.GetById(id);
 
         _context.Categorias.Remove(categoria);
-        _context.SaveChanges();
+        //_context.SaveChanges();
+        _unitOfWork.Commit();
 
         return true;
     }
@@ -44,7 +53,8 @@ public class CategoriaRepository : ICategoriaRepository
         }
 
         _context.Categorias.Add(categoria);
-        _context.SaveChanges();
+        //_context.SaveChanges();
+        _unitOfWork.Commit();
 
         return categoria;
     }
@@ -57,7 +67,8 @@ public class CategoriaRepository : ICategoriaRepository
         }
 
         _context.Entry(categoria).State = EntityState.Modified;
-        _context.SaveChanges();
+        //_context.SaveChanges();
+        _unitOfWork.Commit();
 
         return true;
     }

@@ -4,6 +4,8 @@ using APICatalogo.Logging;
 using APICatalogo.Repositories;
 using APICatalogo.Repositories.Contracts;
 using APICatalogo.Services;
+using APICatalogo.UnitOfWork;
+using APICatalogo.UnitOfWork.Contracts;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -34,6 +36,8 @@ ServerVersion.AutoDetect(mySqlConnectionString)));
 
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
 {
     LogLevel = LogLevel.Information
