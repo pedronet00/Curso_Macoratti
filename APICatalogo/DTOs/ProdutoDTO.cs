@@ -19,5 +19,7 @@ public class ProdutoDTO
     public decimal Preco { get; set; }
 
     public string? ImagemUrl { get; set; }
-    
+
+    public int CategoriaId { get; set; }
+
 }
