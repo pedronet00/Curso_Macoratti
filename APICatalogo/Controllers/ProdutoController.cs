@@ -1,6 +1,8 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.DTOs;
 using APICatalogo.Models;
 using APICatalogo.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +14,13 @@ namespace APICatalogo.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMeuServico _meuServico;
+        private readonly IMapper _mapper;
 
-        public ProdutoController(AppDbContext context, IMeuServico meuServico)
+        public ProdutoController(AppDbContext context, IMeuServico meuServico, IMapper mapper)
         {
             _context = context;
             _meuServico = meuServico;
+            _mapper = mapper;
         }
 
 
@@ -27,7 +31,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Produto>>> Get()
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
         {
             var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
 
@@ -35,12 +39,13 @@ namespace APICatalogo.Controllers
             {
                 return NotFound();
             }
+            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
-            return produtos;
+            return Ok(produtosDTO);
         }
 
         [HttpGet("{id}", Name = "ObterProduto")]
-        public async Task<ActionResult<Produto>> Get(int id)
+        public async Task<ActionResult<ProdutoDTO>> Get(int id)
         {
             var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
 
@@ -49,37 +54,53 @@ namespace APICatalogo.Controllers
                 return NotFound();
             }
 
-            return produto;
+            // var destino = _mapper.Map<Destino>(origem);
+
+            var produtoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+
+            return produtoDTO;
         }
 
         [HttpPost]
-        public ActionResult Post(Produto produto)
+        public ActionResult<ProdutoDTO> Post(ProdutoDTO produtoDTO)
         {
 
-            if (produto is null)
+            if (produtoDTO is null)
                 return BadRequest();
+
+            var produto = _mapper.Map<Produto>(produtoDTO);
 
             _context.Produtos.Add(produto);
 
             _context.SaveChanges();
 
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.Id }, produto);
+            var novoProdutoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+            return new CreatedAtRouteResult("ObterProduto", new { id = produtoDTO.Id }, produtoDTO);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, Produto produto)
+        public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDTO)
         {
-            if (id != produto.Id)
+            if (id != produtoDTO.Id)
                 return BadRequest();
+
+            var produto = _mapper.Map<Produto>(produtoDTO);
+
+
 
             _context.Entry(produto).State = EntityState.Modified;
             _context.SaveChanges();
 
-            return Ok(produto);
+            var produtoAtualizadoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+            return Ok(produtoAtualizadoDTO);
+
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<ProdutoDTO> Delete(int id)
         {
             var produto = _context.Produtos.FirstOrDefault(p => p.Id == id);
 
@@ -89,7 +110,9 @@ namespace APICatalogo.Controllers
             _context.Produtos.Remove(produto);
             _context.SaveChanges();
 
-            return Ok(produto);
+            var produtoDeletadoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+            return Ok(produtoDeletadoDTO);
         }
 
     }
