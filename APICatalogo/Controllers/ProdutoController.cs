@@ -7,6 +7,7 @@ using APICatalogo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace APICatalogo.Controllers
 {
@@ -44,6 +45,18 @@ namespace APICatalogo.Controllers
             {
                 return NotFound();
             }
+
+            var metadata = new             
+            {
+                produtos.TotalCount,
+                produtos.PageSize,
+                produtos.CurrentPage,
+                produtos.TotalPages,
+                produtos.HasNext,
+                produtos.HasPrevious
+            };
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
 
             var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 

@@ -39,12 +39,21 @@ namespace APICatalogo.Repositories
             return _context.Produtos.FirstOrDefault(p => p.Id == id);
         }
 
-        public IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters)
+        //public IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters)
+        //{
+        //    return _context.Produtos
+        //        .Skip((produtosParameters.PageNumber - 1) * produtosParameters.PageSize)
+        //        .Take(produtosParameters.PageSize)
+        //        .ToList();
+        //}
+
+        public PagedList<Produto> GetProdutos(ProdutosParameters produtosParameters)
         {
-            return _context.Produtos
-                .Skip((produtosParameters.PageNumber - 1) * produtosParameters.PageSize)
-                .Take(produtosParameters.PageSize)
-                .ToList();
+            var produtos = _context.Produtos.OrderBy(p => p.Id).AsQueryable();
+
+            var produtosOrdenados = PagedList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+
+            return produtosOrdenados;
         }
 
         public Produto InsertProduto(Produto produto)
