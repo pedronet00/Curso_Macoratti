@@ -5,13 +5,13 @@ namespace APICatalogo.Repositories.Contracts;
 public interface ICategoriaRepository
 {
 
-    IEnumerable<Categoria> GetCategorias();
+    Task<IEnumerable<Categoria>> GetCategoriasAsync();
 
-    Categoria InsertCategoria(Categoria categoria);
+    Task<Categoria> InsertCategoriaAsync(Categoria categoria);
 
-    bool UpdateCategoria(Categoria categoria);
+    Task<bool> UpdateCategoriaAsync(Categoria categoria);
 
-    bool DeleteCategoria(int id);
+    Task<bool> DeleteCategoriaAsync(int id);
 
-    Categoria GetById(int id);
+    Task<Categoria> GetByIdAsync(int id);
 }

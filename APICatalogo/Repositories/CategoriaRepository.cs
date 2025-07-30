@@ -19,33 +19,36 @@ public class CategoriaRepository : ICategoriaRepository
         _unitOfWork = unitOfWork;
     }
 
-    public bool DeleteCategoria(int id)
+    public async Task<bool> DeleteCategoriaAsync(int id)
     {
-        var categoria = this.GetById(id);
+        var categoria = await this.GetByIdAsync(id);
 
         _context.Categorias.Remove(categoria);
-        //_context.SaveChanges();
-        _unitOfWork.Commit();
+
+        await _unitOfWork.Commit();
 
         return true;
     }
 
-    public Categoria GetById(int id)
+    public async Task<Categoria> GetByIdAsync(int id)
     {
-        var categoria = _context.Categorias
-            .FirstOrDefault(c => c.Id == id);
+        var categoria = await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (categoria is null)
+            return null;
 
         return categoria;
     }
 
-    public IEnumerable<Categoria> GetCategorias()
+    public async Task<IEnumerable<Categoria>> GetCategoriasAsync()
     {
-        return _context.Categorias
+        return await _context.Categorias
             .AsNoTracking()
-            .ToList();
+            .ToListAsync();
     }
 
-    public Categoria InsertCategoria(Categoria categoria)
+    public async Task<Categoria> InsertCategoriaAsync(Categoria categoria)
     {
         if (categoria == null)
         {
@@ -53,13 +56,12 @@ public class CategoriaRepository : ICategoriaRepository
         }
 
         _context.Categorias.Add(categoria);
-        //_context.SaveChanges();
-        _unitOfWork.Commit();
+        await _unitOfWork.Commit();
 
         return categoria;
     }
 
-    public bool UpdateCategoria(Categoria categoria)
+    public async Task<bool> UpdateCategoriaAsync(Categoria categoria)
     {
         if (categoria == null)
         {
@@ -67,8 +69,7 @@ public class CategoriaRepository : ICategoriaRepository
         }
 
         _context.Entry(categoria).State = EntityState.Modified;
-        //_context.SaveChanges();
-        _unitOfWork.Commit();
+        await _unitOfWork.Commit();
 
         return true;
     }

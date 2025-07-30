@@ -4,7 +4,7 @@ namespace APICatalogo.UnitOfWork.Contracts;
 
 public interface IUnitOfWork
 {
-    bool Commit();
+    Task<bool> Commit();
 
-    void Rollback();
+    public Task Rollback();
 }

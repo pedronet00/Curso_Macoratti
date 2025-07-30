@@ -15,11 +15,11 @@ namespace APICatalogo.UnitOfWork
             _context = context;
         }
 
-        public bool Commit()
+        public async Task<bool> Commit()
         {
             try
             {
-                return _context.SaveChanges() > 0;
+                return await _context.SaveChangesAsync() > 0;
             }
             catch (DbUpdateException ex)
             {
@@ -31,9 +31,9 @@ namespace APICatalogo.UnitOfWork
             }
         }
 
-        public void Rollback()
+        public async Task Rollback()
         {
-            _context.Dispose();
+            await _context.DisposeAsync();
         }
     }
 }

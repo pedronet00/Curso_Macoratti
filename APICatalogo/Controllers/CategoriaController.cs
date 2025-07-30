@@ -37,12 +37,12 @@ namespace APICatalogo.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
 
             _logger.LogInformation("### Executando -> Get Categorias ###");
 
-            var categorias = _repo.GetCategorias();
+            var categorias = await _repo.GetCategoriasAsync();
 
             var categoriasDTO = new List<CategoriaDTO>();
             foreach (var categoria in categorias)
@@ -61,9 +61,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id:int:min(1)}")]
-        public ActionResult<CategoriaDTO> Get(int id)
+        public async Task<ActionResult<CategoriaDTO>> Get(int id)
         {
-            var categoria = _repo.GetById(id);
+            var categoria = await _repo.GetByIdAsync(id);
 
             if (categoria is null)
                 return NotFound($"Categoria com o id {id} não encontrada.");
@@ -78,7 +78,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDTO)
         {
             if (categoriaDTO is null)
                 return BadRequest();
@@ -90,7 +90,7 @@ namespace APICatalogo.Controllers
                 ImagemUrl = categoriaDTO.ImagemUrl
             };
 
-            _repo.InsertCategoria(categoria);
+            await _repo.InsertCategoriaAsync(categoria);
 
             var novaCategoriaDTO = new CategoriaDTO()
             {
@@ -103,9 +103,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<CategoriaDTO> Put(int id, CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> Put(int id, CategoriaDTO categoriaDTO)
         {
-            var categoriaExistente = _repo.GetById(id);
+            var categoriaExistente = await _repo.GetByIdAsync(id);
 
             if (categoriaDTO is null)
                 return NotFound();
@@ -117,7 +117,7 @@ namespace APICatalogo.Controllers
                 ImagemUrl = categoriaDTO.ImagemUrl
             };
 
-            _repo.UpdateCategoria(categoria);
+            await _repo.UpdateCategoriaAsync(categoria);
 
             var categoriaDTOAtualizada = new CategoriaDTO()
             {
@@ -130,14 +130,14 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<CategoriaDTO> Delete(int id)
+        public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
-            var categoria = _repo.GetById(id);
+            var categoria = await _repo.GetByIdAsync(id);
 
             if (categoria is null)
                 return NotFound();
 
-            _repo.DeleteCategoria(id);
+            await _repo.DeleteCategoriaAsync(id);
 
             return Ok();
         }

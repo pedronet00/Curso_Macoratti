@@ -19,24 +19,24 @@ namespace APICatalogo.Repositories
             _uow = uow;
         }
 
-        public bool DeleteProduto(int id)
+        public async Task<bool> DeleteProduto(int id)
         {
-            var produto = _context.Produtos
-                .FirstOrDefault(p => p.Id == id);
+            var produto = await _context.Produtos
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (produto is null)
                 return false;
 
             _context.Produtos.Remove(produto);
-            _uow.Commit();
+            await _uow.Commit();
 
             return true;
 
         }
 
-        public Produto GetProdutoById(int id)
+        public async Task<Produto> GetProdutoById(int id)
         {
-            return _context.Produtos.FirstOrDefault(p => p.Id == id);
+            return await _context.Produtos.FirstOrDefaultAsync(p => p.Id == id);
         }
 
         //public IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters)
@@ -47,33 +47,33 @@ namespace APICatalogo.Repositories
         //        .ToList();
         //}
 
-        public PagedList<Produto> GetProdutos(ProdutosParameters produtosParameters)
+        public async Task<PagedList<Produto>> GetProdutos(ProdutosParameters produtosParameters)
         {
-            var produtos = _context.Produtos.OrderBy(p => p.Id).AsQueryable();
+            var produtos =  _context.Produtos.OrderBy(p => p.Id).AsQueryable();
 
-            var produtosOrdenados = PagedList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+            var produtosOrdenados = await PagedList<Produto>.ToPagedListAsync(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
 
             return produtosOrdenados;
         }
 
-        public Produto InsertProduto(Produto produto)
+        public async Task<Produto> InsertProduto(Produto produto)
         {
             if (produto is null)
                 throw new ArgumentNullException(nameof(produto));
 
             _context.Produtos.Add(produto);
-            _uow.Commit();
+            await _uow.Commit();
 
             return produto;
         }
 
-        public bool UpdateProduto(Produto produto)
+        public async Task<bool> UpdateProduto(Produto produto)
         {
             if (produto is null)
                 throw new ArgumentNullException(nameof(produto));
 
             _context.Entry(produto).State = EntityState.Modified;
-            var result = _uow.Commit();
+            var result = await _uow.Commit();
 
             return result;
         }

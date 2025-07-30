@@ -7,14 +7,14 @@ namespace APICatalogo.Repositories.Contracts
     {
 
         //IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters);
-        PagedList<Produto> GetProdutos(ProdutosParameters produtosParameters);
+        Task<PagedList<Produto>> GetProdutos(ProdutosParameters produtosParameters);
 
-        Produto GetProdutoById(int id);
+        Task<Produto> GetProdutoById(int id);
 
-        Produto InsertProduto(Produto produto);
+        Task<Produto> InsertProduto(Produto produto);
 
-        bool UpdateProduto(Produto produto);
+        Task<bool> UpdateProduto(Produto produto);
 
-        bool DeleteProduto(int id);
+        Task<bool> DeleteProduto(int id);
     }
 }

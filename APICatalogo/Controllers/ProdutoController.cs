@@ -37,9 +37,9 @@ namespace APICatalogo.Controllers
 
 
         [HttpGet]
-        public  ActionResult<IEnumerable<ProdutoDTO>> Get([FromQuery] ProdutosParameters produtosParameters)
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get([FromQuery] ProdutosParameters produtosParameters)
         {
-            var produtos = _repo.GetProdutos(produtosParameters);
+            var produtos = await _repo.GetProdutos(produtosParameters);
 
             if (produtos is null)
             {
@@ -55,6 +55,8 @@ namespace APICatalogo.Controllers
                 produtos.HasNext,
                 produtos.HasPrevious
             };
+
+
 
             Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
 
@@ -111,15 +113,14 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<ProdutoDTO> Delete(int id)
+        public async Task<ActionResult<ProdutoDTO>> Delete(int id)
         {
-            var produto = _repo.GetProdutoById(id);
+            var produto = await _repo.GetProdutoById(id);
 
             if (produto is null)
                 return NotFound();
 
-            _context.Produtos.Remove(produto);
-            _context.SaveChanges();
+            await _repo.DeleteProduto(id);
 
             var produtoDeletadoDTO = _mapper.Map<ProdutoDTO>(produto);
 
