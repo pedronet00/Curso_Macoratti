@@ -2,11 +2,13 @@ using APICatalogo.Context;
 using APICatalogo.DTOs.Mappings;
 using APICatalogo.Filters;
 using APICatalogo.Logging;
+using APICatalogo.Models;
 using APICatalogo.Repositories;
 using APICatalogo.Repositories.Contracts;
 using APICatalogo.Services;
 using APICatalogo.UnitOfWork;
 using APICatalogo.UnitOfWork.Contracts;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -36,9 +38,27 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseMySql(mySqlConnectionString, 
 ServerVersion.AutoDetect(mySqlConnectionString)));
 
+var secretKey = builder.Configuration["JWT:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JWT:Issuer"],
+            ValidAudience = builder.Configuration["JWT:Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey))
+        };
+    });
+
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
@@ -46,6 +66,14 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
 {
     LogLevel = LogLevel.Information
 }));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorization();
+//builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+
 
 var app = builder.Build();
 

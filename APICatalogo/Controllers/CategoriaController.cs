@@ -17,8 +17,8 @@ namespace APICatalogo.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
 
-        public CategoriaController(ICategoriaRepository repo, 
-                                   IConfiguration configuration, 
+        public CategoriaController(ICategoriaRepository repo,
+                                   IConfiguration configuration,
                                    ILogger<CategoriaController> logger)
         {
             _repo = repo;
@@ -57,7 +57,7 @@ namespace APICatalogo.Controllers
             }
 
             return Ok(categoriasDTO);
-            
+
         }
 
         [HttpGet("{id:int:min(1)}")]
